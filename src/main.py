@@ -1,19 +1,34 @@
 import cv2
 import cvlib as cv
 from cvlib.object_detection import draw_bbox
+import numpy as np
 
-cam = cv2.VideoCapture(1) 
+lower = np.array([15, 150, 20])
+upper = np.array([35, 255, 255])
+
+cam = cv2.VideoCapture(0) 
 
 while True:
-    ret, frame = cam.read()
+    success, frame = cam.read()
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(image, lower, upper)
 
-    bbox, label, conf = cv.detect_common_objects(frame)
-    output_frame = draw_bbox(frame, bbox, label, conf)
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    cv2.imshow("Object detector", output_frame)
+    if len(contours) != 0:
+        for contour in contours:
+            if cv2.contourArea(contour) > 500:
+                x, y, w, h = cv2.boundingRect(contour)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                cv2.putText(frame, 'haha BIER', (x + 1, y - 6), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1)
+
+
+    # cv2.imshow("mask", mask)
+    cv2.imshow("Geel herkenner", frame)
+
 
     key = cv2.waitKey(1)
-    if key == ord('q') or cv2.getWindowProperty('Object detector', cv2.WND_PROP_VISIBLE) < 1:
+    if key == ord('q') or cv2.getWindowProperty('Geel herkenner', cv2.WND_PROP_VISIBLE) < 1:
         break
 
 cam.release()
