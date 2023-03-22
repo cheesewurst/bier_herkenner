@@ -1,33 +1,31 @@
 import os
 from dotenv import load_dotenv
-import config
 import discord
-import asyncio
+from discord.ext import commands
 
 load_dotenv()
 
-TOKEN =  os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('DISCORD_TOKEN')
+APPID = os.getenv('APPID')
 
-intents = discord.Intents.default()
-intents.messages = True
-client = discord.Client(intents=intents)
+class MyBot(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix="!",
+            intents=discord.Intents.all(),
+            application_id= APPID,
+        )
 
-@client.event
-async def on_ready():
-    print("Online and ready for service!")
+    async def setup_hook(self):
+        for filename in os.listdir("./cogs"):
+            if filename.endswith(".py"):
+                await self.load_extension(f"cogs.{filename[:-3]}")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+        await bot.tree.sync(guild=discord.Object(id=APPID)) 
+        bot.remove_command("help")
 
-    await message.channel.send("pindakaas :)")
+    async def on_ready(self):
+        print("Ready!")
 
-async def setup():
-    print("Setting up....")
-
-async def main():
-    await setup()
-    await client.start(TOKEN)
-
-asyncio.run(main())
+bot = MyBot()
+bot.run(TOKEN)
