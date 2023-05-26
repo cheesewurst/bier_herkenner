@@ -2,30 +2,22 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from api import get_stock
 
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 APPID = os.getenv('APPID')
+intents = discord.Intents.default()
 
-class MyBot(commands.Bot):
-    def __init__(self):
-        super().__init__(
-            command_prefix="!",
-            intents=discord.Intents.all(),
-            application_id= APPID,
-        )
+bot = commands.Bot(command_prefix= '.', intents = intents)
 
-    async def setup_hook(self):
-        for filename in os.listdir("./cogs"):
-            if filename.endswith(".py"):
-                await self.load_extension(f"cogs.{filename[:-3]}")
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name} ({bot.user.id})')
 
-        await bot.tree.sync(guild=discord.Object(id=APPID)) 
-        bot.remove_command("help")
+@bot.slash_command()
+async def stock(ctx: commands.Context):
+    await ctx.send(f'Current stock is, {get_stock()}!')
 
-    async def on_ready(self):
-        print("Ready!")
-
-bot = MyBot()
 bot.run(TOKEN)
