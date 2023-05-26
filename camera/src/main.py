@@ -16,7 +16,6 @@ async def timer(seconds):
     global prevAverage
     while True:
         await asyncio.sleep(seconds)
-        print("timer reset")
         newAverage = int(get_average())
         if newAverage != 0 and newAverage != prevAverage:
             prevAverage = newAverage
