@@ -2,12 +2,14 @@ import asyncio
 import cv2
 import numpy as np
 from moving_average import moving_average
+import requests
 
 lower = np.array([15, 150, 20])
 upper = np.array([35, 255, 255])
 average = 0
 prevAverage = 0
 cam = cv2.VideoCapture(1) 
+url = 'http://127.0.0.1:8000/variable/'
 
 def get_average():
     return average
@@ -19,7 +21,7 @@ async def timer(seconds):
         newAverage = int(get_average())
         if newAverage != 0 and newAverage != prevAverage:
             prevAverage = newAverage
-            print(f'new value: {newAverage}')
+            requests.put(f'{url}/{newAverage}')
 
 async def run_async_timer():
     while True:
