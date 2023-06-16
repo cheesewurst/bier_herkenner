@@ -15,3 +15,7 @@ async def update_variable(new_value: int):
     stock = new_value
 
     return {"message": "Variable updated", "new_value": stock}
+
+@app.get("/get_stock")
+async def get_stock():
+    return {"stock": stock}
